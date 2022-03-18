@@ -1,0 +1,65 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="wrapper">
+        <h4>Profile:</h4>
+        <div class="profileimg">
+            <img src="https://icon-library.com/images/no-profile-picture-icon/no-profile-picture-icon-12.jpg" onError="this.onerror = '';this.parentElement.style.display='none';">
+        </div><br>
+        
+
+        <h5>name: {{ user }}</h5>
+        <h5>Email: <a href = "mailto: {{ user.email }}">{{ user.email }}</a></h5>
+        <h6>follows: <span class="badge badge-primary">{{ follows }}</span></h6>
+        <h6>Posts: <span class="badge badge-primary">{{ postcount }}</span></h6>
+        <p></p>
+        {% for post in page_obj %}
+            <div class="postbox" id="pb{{ post.id }}">
+                    <div class="profiledata">
+                        <h5><a href="{% url 'usr' usr=post.user %}">{{ post.user }}</a></h5> wrote: <small>{{ post.timest }}</small>
+                    </div>
+                    <div id="editcomment">
+                        <textarea id="edittext{{ post.id }}" class="form-control" disabled >{{ post.post }}</textarea>
+                        <p></p>
+                        {% if request.user.id == post.user.id %}
+                        <div id="edit{{ post.id }}">
+                        <button class="btn btn-primary" onclick=editpost({{ post.id }}) id="editbutton{{ post.id }}">Edit</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p></p>
+                    <button id="postlike{{ post.id }}" value="{{ post.id }}" name="postlike" type="button" class="btn btn-outline-danger btn-sm" onclick=likebutton({{ post.id }})> {{ post.liked_count }}
+                    </button>
+                    <p></p>
+                    <a href="{% url 'comment' post_id=post.id %}" class="btn btn-dark btn-sm">
+                        Comment <span class="badge bg-danger">{{ post.comment_count }}</span>
+                    </a>
+                </div>
+        {% endfor %}
+        <p></p>
+        <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+            
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+    </div>
+    
+    {{ request.user.id|json_script:"user_id" }}
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/network.js' %}"></script>
+{% endblock %}
